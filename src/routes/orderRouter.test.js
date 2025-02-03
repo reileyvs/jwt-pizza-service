@@ -4,6 +4,7 @@ const { Role, DB } = require('../database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
+let admin;
 
 if(process.env.VSCODE_INSPECTOR_OPTIONS) {
     jest.setTimeout(1000 * 60 * 60);

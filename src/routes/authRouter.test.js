@@ -4,6 +4,7 @@ const { Role, DB } = require('../database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
+let admin;
 
 if(process.env.VSCODE_INSPECTOR_OPTIONS) {
     jest.setTimeout(1000 * 60 * 60);
@@ -35,13 +36,14 @@ test('login', async () => {
     expect(loginRes.status).toBe(200);
     expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
   
-    const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
+    const user = { ...testUser, roles: [{ role: 'diner' }] };
+    delete user.password;
     expect(loginRes.body.user).toMatchObject(user);
   });
 
 test('logout with login', async () => {
-    const loginRes = await request(app).put('/api/auth').send(testUser);
-    const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${loginRes.body.token}`)
+    await request(app).put('/api/auth').send(testUser);
+    const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${testUserAuthToken}`)
     expect(logoutRes.status).toBe(200);
 });
 
@@ -51,8 +53,8 @@ test('logout without login', async () => {
 })
 
 test('update user not admin', async () => {
-    const loginRes = await request(app).put('/api/auth').send(testUser);
-    const updateUserRes = await request(app).put('/api/auth/1').send({ email: 'yeehaw', password: 'pass' }).set('Authorization', `Bearer ${loginRes.body.token}`);
+    await request(app).put('/api/auth').send(testUser);
+    const updateUserRes = await request(app).put('/api/auth/1').send({ email: 'yeehaw', password: 'pass' }).set('Authorization', `Bearer ${testUserAuthToken}`);
     expect(updateUserRes.status).toBe(403);
 });
 
