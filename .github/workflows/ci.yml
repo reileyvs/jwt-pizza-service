@@ -79,7 +79,7 @@ jobs:
           curl -s -X POST "https://badge.cs329.click/badge/${{ github.repository_owner }}/jwtpizzaservicecoverage?label=Coverage&value=$coverage%25&color=$color" -H "authorization: bearer ${{ secrets.FACTORY_API_KEY }}" -o /dev/null
 
       - name: Create dist
-        run: |
+        run: | 
           mkdir dist
           cp Dockerfile dist
           cp -r src/* dist
