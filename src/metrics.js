@@ -2,9 +2,6 @@ const config = require('./config');
 const os = require('os');
 const si = require('systeminformation');
 
-let requests = 0;
-let latency = 0;
-
 class Metric {
   constructor() {
     this.requestTracker = this.requestTracker.bind(this)
@@ -50,7 +47,7 @@ class Metric {
     }
   }
   resetUserMetrics() {
-    const timer = setInterval(() => {
+    setInterval(() => {
       if (this.userMetrics.users > 0) {
         this.userMetrics.users -= 1
       }
@@ -105,7 +102,7 @@ class Metric {
     return arr;
   }
   sendMetricsPeriodically(period) {
-    const timer = setInterval(() => {
+    setInterval(() => {
       try {
         const buf = [];
         const http = this.addHttpMetrics()
