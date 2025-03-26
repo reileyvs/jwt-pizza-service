@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
+const metric = require('../metrics.js');
 
 const authRouter = express.Router();
 
@@ -67,12 +68,17 @@ authRouter.authenticateToken = (req, res, next) => {
 authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    const start = new Date();
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
+    const end = new Date();
+    latency = end - start;
+    metric.addLatency(latency);
+    metric.addUserMetrics();
     res.json({ user: user, token: auth });
   })
 );
@@ -81,9 +87,14 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
+    const start = new Date();
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
+    const end = new Date();
+    latency = end - start;
+    metric.addLatency(latency);
+    metric.plusUserMetrics();
     res.json({ user: user, token: auth });
   })
 );
@@ -93,7 +104,12 @@ authRouter.delete(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    const start = new Date();
     await clearAuth(req);
+    const end = new Date();
+    latency = end - start;
+    metric.addLatency(latency);
+    metric.reduceUserMetrics();
     res.json({ message: 'logout successful' });
   })
 );
@@ -134,6 +150,6 @@ function readAuthToken(req) {
     return authHeader.split(' ')[1];
   }
   return null;
-}
+} 
 
 module.exports = { authRouter, setAuthUser };

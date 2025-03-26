@@ -2,6 +2,7 @@ const express = require('express');
 const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
+const metric = require('../metrics.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
 
 const orderRouter = express.Router();
@@ -77,6 +78,7 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    const start = new Date();
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
     const r = await fetch(`${config.factory.url}/api/order`, {
@@ -86,8 +88,18 @@ orderRouter.post(
     });
     const j = await r.json();
     if (r.ok) {
+      const end = new Date();
+      const latency = end - start;
+      metric.addPizzaLatency(latency);
       res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
+      metric.pizzaOrder(true, order.items.length);
+      let sum = 0;
+      for (const item of order.items) {
+        sum += item.price;
+      }
+      metric.addRevenue(sum);
     } else {
+      metric.pizzaOrder(false, order.items.length);
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportPizzaCreationErrorToPizzaFactoryUrl: j.reportUrl });
     }
   })
