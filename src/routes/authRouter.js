@@ -76,7 +76,7 @@ authRouter.post(
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
     const end = new Date();
-    latency = end - start;
+    const latency = end - start;
     metric.addLatency(latency);
     metric.addUserMetrics();
     res.json({ user: user, token: auth });
@@ -92,7 +92,7 @@ authRouter.put(
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
     const end = new Date();
-    latency = end - start;
+    const latency = end - start;
     metric.addLatency(latency);
     metric.plusUserMetrics();
     res.json({ user: user, token: auth });
@@ -107,7 +107,7 @@ authRouter.delete(
     const start = new Date();
     await clearAuth(req);
     const end = new Date();
-    latency = end - start;
+    const latency = end - start;
     metric.addLatency(latency);
     metric.reduceUserMetrics();
     res.json({ message: 'logout successful' });
