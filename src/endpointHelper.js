@@ -1,7 +1,15 @@
+const logger = require("./logger");
+
 class StatusCodeError extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
+    logger.unhandledErrorLogger(
+      {
+        message: message,
+        statusCode: statusCode
+      }
+    );
   }
 }
 

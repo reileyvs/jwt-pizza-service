@@ -4,6 +4,7 @@ const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const metric = require('../metrics.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
+const logger = require('../logger.js');
 
 const orderRouter = express.Router();
 
@@ -81,6 +82,8 @@ orderRouter.post(
     const start = new Date();
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
+    const orderInfo = { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order };
+    logger.factoryLogger(orderInfo);
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
