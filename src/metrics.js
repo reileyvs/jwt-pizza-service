@@ -180,8 +180,6 @@ class Metric {
         response.text().then((text) => {
           console.error(`Failed to push metrics data to Grafana: ${text}\n${body}`);
         });
-      } else {
-        console.log(`Pushed ${metric.resourceMetrics[0].scopeMetrics[0].metrics[0].name}`);
       }
     })
     .catch((error) => {
