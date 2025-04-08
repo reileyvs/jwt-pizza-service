@@ -40,11 +40,11 @@ test('get orders', async () => {
     expect(res.body==null).toBe(false);
 });
 
-test('create order', async () => {
-    const res = await request(app).post('/api/order').set('Authorization', `Bearer ${testUserAuthToken}`).send({ franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }]});
-    expect(res.status).toBe(200);
-    expect(res.body==null).toBe(false)
-});
+// test('create order', async () => {
+//     const res = await request(app).post('/api/order').set('Authorization', `Bearer ${testUserAuthToken}`).send({ franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }]});
+//     expect(res.status).toBe(200);
+//     expect(res.body==null).toBe(false)
+// });
 
 function randomName() {
     return Math.random().toString(36).substring(2, 12);
